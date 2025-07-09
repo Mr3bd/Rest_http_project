@@ -2,21 +2,15 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import PlainTextResponse
 import uvicorn
 import os.path
-
+from dotenv import load_dotenv
 app = FastAPI()
-
+load_dotenv()  
 
 @app.get("/get-env-file", response_class=PlainTextResponse)
 async def get_env_file():
-    env_path = ".env"
+    secret = os.getenv("SECRET_KEY")
 
-    if not os.path.exists(env_path):
-        raise HTTPException(status_code=404, detail=".env file not found.")
-
-    with open(env_path, "r") as file:
-        content = file.read()
-
-    return content
+    return secret
 
 
 if __name__ == "__main__":

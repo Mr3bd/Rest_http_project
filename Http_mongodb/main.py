@@ -3,9 +3,9 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import Optional
-import configparser
 import uvicorn
 import os
+
 
 class Product(BaseModel):
     name: str
@@ -14,21 +14,24 @@ class Product(BaseModel):
     in_stock: bool = True
 
 load_dotenv()
-config = configparser.ConfigParser()
-config.read("config.ini")
 
-MONGO_URI = os.getenv("MONGO_URI")
-DB_NAME = config["database"]["name"]
-COLLECTION_NAME = config["database"]["collection"]
+COLLECTION_NAME = "products"
 
+MONGO_USER = os.getenv("MONGO_USER")
+MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
+MONGO_PORT = os.getenv("MONGO_PORT", "27017")
+MONGO_DB = os.getenv("MONGO_DB")
+
+MONGO_URI = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/{MONGO_DB}?authSource=admin"
 
 client = AsyncIOMotorClient(MONGO_URI)
-db = client[DB_NAME]
+db = client[MONGO_DB]
+
+
 products_collection = db[COLLECTION_NAME]
 
 app = FastAPI(
-    title=config["app"]["name"],
-    version=config["app"]["version"]
 )
 
 
